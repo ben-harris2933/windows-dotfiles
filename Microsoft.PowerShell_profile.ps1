@@ -13,13 +13,16 @@ function Invoke-FzfHistory {
 }
 Set-PSReadLineKeyHandler -Key "Ctrl+r" -ScriptBlock { Invoke-FzfHistory }
 
-# CTRL+t for fuzzy search for files/folders
 function Invoke-FzfFileFolderFinder {
-    fd --type file --follow --hidden --exclude .git |
+    $selection = fd --type file --follow --hidden --exclude .git |
     fzf --prompt 'Files> ' `
-      --header-first `
-      --header 'CTRL-S: Switch between Files/Directories' `
-      --bind 'ctrl-s:transform:if not "%FZF_PROMPT%"=="Files> " (echo ^change-prompt^(Files^> ^)^+^reload^(fd --type file^)) else (echo ^change-prompt^(Directory^> ^)^+^reload^(fd --type directory^))' `
-      --preview 'if "%FZF_PROMPT%"=="Files> " (bat --color=always {} --style=plain) else (eza -T --colour=always --icons=always {})'
+        --header-first `
+        --header 'CTRL-S: Switch between Files/Directories' `
+        --bind 'ctrl-s:transform:if not "%FZF_PROMPT%"=="Files> " (echo ^change-prompt^(Files^> ^)^+^reload^(fd --type file^)) else (echo ^change-prompt^(
+Directory^> ^)^+^reload^(fd --type directory^))' `
+       --preview 'if "%FZF_PROMPT%"=="Files> " (bat --color=always {} --style=plain) else (eza -T --colour=always --icons=always {})'
+    if ($selection) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($selection)
+    }
 }
 Set-PSReadLineKeyHandler -Key "Ctrl+t" -ScriptBlock { Invoke-FzfFileFolderFinder }
